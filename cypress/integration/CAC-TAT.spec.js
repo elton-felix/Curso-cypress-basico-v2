@@ -36,7 +36,7 @@ describe('Central de Atendimento ao Cliente TAT', function () {
 })
 
 //exercicio 2
-it('exibe mensagem de erro ao submeter o formulário com um email com formatação inválida', function() {
+it.only('exibe mensagem de erro ao submeter o formulário com um email com formatação inválida', function() {
     
     cy.get('#firstName').type('Elton');
     cy.get('#lastName').type('Felix');
