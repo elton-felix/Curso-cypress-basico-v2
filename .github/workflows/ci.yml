@@ -1,0 +1,14 @@
+name: End-to-end tests 🧪
+on: [push] # esse pipeline é disparado quando tiver push no repositorio
+jobs:
+  cypress-run:  #roda o comando cypress run
+    runs-on: ubuntu-20.04 #roda o comando numa imagem linux
+    steps:
+      - name: Checkout #github baixa no workspace do githubactions o codigo do projeto
+        uses: actions/checkout@v2 
+      # Install NPM dependencies, cache them correctly
+      # and run all Cypress tests
+      - name: Cypress run
+        uses: cypress-io/github-action@v2
+
+        #criando uma pipilane de integração continua
