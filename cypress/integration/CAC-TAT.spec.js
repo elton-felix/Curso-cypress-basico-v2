@@ -40,6 +40,7 @@ it('exibe mensagem de erro ao submeter o formulário com um email com formataç�
     
     cy.get('#firstName').type('Elton');
     cy.get('#lastName').type('Felix');
+    cy.get('#email').type('eltomfelix@gmail.com');
 
     cy.get('#open-text-area').type('classe error');  
     cy.contains('button', 'Enviar').click();
