@@ -3,11 +3,23 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
 //dizemos que o cypress busque como referencia os tipos do cypress. assim podemos ver as assinaturas das funções e altocomplite
 
 
 //primeiro argumento é descruisão do test e o segundo uma função onde vai conter os testes
 describe('Central de Atendimento ao Cliente TAT', function () {
+
+    const THREE_sECONDS_IN_MS = 3000; 
 
     beforeEach(() => {
         cy.visit('./src/index.html');
@@ -21,23 +33,30 @@ describe('Central de Atendimento ao Cliente TAT', function () {
     })
 
 
+
     //.only nós definimos que só execute esse teste
     it('preenche os campos obrigatórios e envia o formulário', function() {
         const longText = 'exercicio curso cypress, testando sobreescrever o delay, teste,exercicio curso cypress, testando sobreescrever o delay, teste,exercicio curso cypress, testando sobreescrever o delay, teste,exercicio curso cypress, testando sobreescrever o delay, teste,exercicio curso cypress, testando sobreescrever o delay, teste,exercicio curso cypress, testando sobreescrever o delay, teste,exercicio curso cypress, testando sobreescrever o delay, teste'
        
+        cy.clock() //congela o relogio do navegador
+
         cy.get('#firstName').type('Elton');
         cy.get('#lastName').type('Felix');
         cy.get('#email').type('elton@gmail.com');
         cy.get('#open-text-area').type(longText,  {delay: 0}); // ao utilizar o delay junto ao type, o cypress escreve quase que estantaneo, essa pratica é boa pra escrita de textos grandes;
         cy.contains('button', 'Enviar').click();
 
-        
         cy.get('.success').should('be.visible');
+
+        cy.tick(THREE_sECONDS_IN_MS);//funcionalidade avança no tempo
+        
+        cy.get('.success').should('not.be.visible');
 })
 
 //exercicio 2
-it.only('exibe mensagem de erro ao submeter o formulário com um email com formatação inválida', function() {
-    
+it('exibe mensagem de erro ao submeter o formulário com um email com formatação inválida', function() {
+    cy.clock();
+
     cy.get('#firstName').type('Elton');
     cy.get('#lastName').type('Felix');
     cy.get('#email').type('eltomfelix@gmail,com');
@@ -47,21 +66,29 @@ it.only('exibe mensagem de erro ao submeter o formulário com um email com forma
 
     
     cy.get('.error').should('be.visible');
+
+    cy.tick(THREE_sECONDS_IN_MS);
+
+    cy.get('.error').should('not.be.visible');
+
 })
 
 //exercicio 3
-it('campo telefone continua vazio quando preenchido com valor não-númerico', function() {
+Cypress._.times(3, () => {//ultilizando a biblioteca loadash do js com a função times que executa um teste na quantidade de vezes que definimos
+    it('campo telefone continua vazio quando preenchido com valor não-númerico', function() {
     
-    //tentando digitar um texto no campo telefone que só aceita valores numericos e verificando se o campo continuaq vazio
-    cy.get('#phone')
-    .type('eeeeaaa')
-    .should('have.value', '');
-   
+        //tentando digitar um texto no campo telefone que só aceita valores numericos e verificando se o campo continuaq vazio
+        cy.get('#phone')
+        .type('eeeeaaa')
+        .should('have.value', '');
+       
+    })
 })
 
 //exercicio 4
 it('exibe mensagem de erro quando o telefone se torna obrigatório mas não é preenchido antes do envio do formulário', function() {
-    
+    cy.clock();
+
     cy.get('#firstName').type('Elton');
     cy.get('#lastName').type('Felix');
     cy.get('#email').type('elton@gmail.com');
@@ -71,6 +98,10 @@ it('exibe mensagem de erro quando o telefone se torna obrigatório mas não é p
 
     
     cy.get('.error').should('be.visible');
+
+    cy.tick(THREE_sECONDS_IN_MS);
+
+    cy.get('.error').should('not.be.visible');
 })
 
 //exercicio 5
@@ -89,19 +120,32 @@ it('preenche e limpa os campos nome, sobrenome, email e telefone', function() {
 
 //exercicio 6
 it('exibe mensagem de erro ao submeter o formulário sem preencher os campos obrigatórios', function() {
-    
+    cy.clock();
+
    // cy.get('button[type="submit"]').click(); forma anterior que acessavamos o botão com o get
+
 
    cy.contains('button', 'Enviar').click();// com o contains nós podemos acessar o elemento tanto pelo seu seletor quanto pelo texto do elemento
 
     cy.get('.error').should('be.visible');
+
+    cy.tick(THREE_sECONDS_IN_MS);
+
+    cy.get('.error').should('not.be.visible');
 })
+
 
 //exercicio 7
 it('envia o formuário com sucesso usando um comando customizado', () => {
+    cy.clock();
+
     cy.fillMandatoryFieldsAndSubmit();//criamos um comando customizado que esta contino no commands.js
 
     cy.get('.success').should('be.visible');
+
+    cy.tick(THREE_sECONDS_IN_MS);
+
+    cy.get('.error').should('not.be.visible');
 })
  
 //exercicios Selecionando opções em campos de seleção suspensa
@@ -197,7 +241,62 @@ it('acessa a página da política de privacidade removendo o target e então cli
     cy.contains('Talking About Testing').should('be.visible');//verificando se o texto no contains esta visivel
     })
  
-   //exercicios  Simulando o viewport de um dispositivo móvel
+   //exercicios  Invoque atributos e métodos de elementos com o comando .invoke()
+
+   it('exibe e esconde as mensagens de sucesso e erro usando o .invoke', () => {
+    cy.get('.success')
+      .should('not.be.visible')
+      .invoke('show') //forçar a exibição de um elemento HTML que esteja escondido, com um estilo display: none;, por exemplo.
+      .should('be.visible')
+      .and('contain', 'Mensagem enviada com sucesso.')
+      .invoke('hide')//você pode esconder um elemento que está sendo exibido.
+      .should('not.be.visible')
+    cy.get('.error')
+      .should('not.be.visible')
+      .invoke('show')
+      .should('be.visible')
+      .and('contain', 'Valide os campos obrigatórios!')
+      .invoke('hide')
+      .should('not.be.visible')
+  })
    
+  //exercicio 2
+  it('preenche a area de texto usando o comando invoke', () =>{
+    const text = Cypress._.repeat('teste', 20) // repeat repete uma string um numero de vezes
+    
+    cy.get('#open-text-area').invoke('val',text).should('have.value', text);
+  })
+
+  //exercicio faz uma requisição HTTP
+
+  it('faz uma requisição HTTP', ()=>{
+    cy.request('https://cac-tat.s3.eu-central-1.amazonaws.com/index.html').should(function(response){
+        const{status, statusText, body} = response//desestruturando o objeto atraves do response
+        expect(status).to.equal(200);
+        expect(statusText).to.equal('OK')
+        expect(body).to.include('CAC TAT')//include verifica se o texto esta incluso num conjunto
+    })
+
+    //outra forma de fazer o teste
+    //   cy.request({
+    //     method: 'GET',
+    //     url: 'https://cac-tat.s3.eu-central-1.amazonaws.com/index.html'
+    //   }).then((response) => {
+    //     expect(response.status).to.equal(200);
+    //     expect(response.statusText).to.equal('OK');
+    //     expect(response.body).to.include('CAC TAT')
+
+  })
+
+  //desafio
+
+  it('encontre o gato', ()=>{
+    cy.get('#cat').invoke('show').should('be.visible');
+
+    cy.get('#title').invoke('text', 'CAT TAT')//utilizando o invoke pra mudar o texto do titulo da aplicação
+
+    cy.get('#subtitle').invoke('text', 'Eu amo gatos')//utilizando o invoke pra mudar o texto do subtitulo da aplicação
+
+  })
 
 })
